@@ -28,7 +28,10 @@ class x9Cli : Callable<Int> {
             } else {
                 commits.forEach { commit ->
                     println("  Commit: ${commit.message}")
-                    println("  Link: ${commit.url}")
+                    println("  Link: ${commit.url!!
+                        .replace("https://api.github.com/repos/",
+                            "https://github.com/")
+                        .replace("/commits/", "/commit/")}")
                     println()
                 }
             }
