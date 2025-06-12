@@ -1,0 +1,13 @@
+{
+  "resources": {
+    "includes": [
+      {"pattern": "\\QMETA-INF/maven/org.example/picocli-poc/pom.properties\\E"},
+      {"pattern": "\\QMETA-INF/services/java.nio.file.spi.FileSystemProvider\\E"},
+      {"pattern": ".*\\.properties$"},
+      {"pattern": "META-INF/services/.*"},
+      {"pattern": "META-INF/native/.*"},
+      {"pattern": "META-INF/native-image/.*"}
+    ]
+  },
+  "bundles": []
+}

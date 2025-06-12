@@ -32,6 +32,95 @@ This project demonstrates how to build a command-line application using:
 mvn clean package
 ```
 
+## Building Native Image with GraalVM
+
+To build native executables using GraalVM, you need to:
+
+1. Install GraalVM 24.0.0 or later
+2. Set JAVA_HOME to point to your GraalVM installation
+3. Install the native-image component if not already installed:
+
+```bash
+$JAVA_HOME/bin/gu install native-image
+```
+
+4. Use one of the build scripts:
+
+```bash
+# Option 1: ULTRA SIMPLE implementation with no external dependencies (RECOMMENDED)
+./build-ultra-simple.sh
+./build-both-simple.sh
+
+# Option 2: Basic implementation using org.json
+./build-basic.sh
+
+# Option 3: Other approaches (if the above don't work)
+./build-robust.sh
+./build-no-deps.sh
+./build-bare-minimum.sh
+./build-simple.sh
+```
+
+The simplified applications avoid using picocli completely and should build successfully with GraalVM.
+
+**Note about the simplified versions:**
+1. They don't use picocli but provide the same functionality with manual argument parsing
+2. The ultra simple implementation uses only Java standard library with very basic string operations
+3. Multiple implementation options are provided to work around various GraalVM limitations
+4. For best results, use the ultra simple implementation which has no dependencies on external libraries
+
+This will generate native executables in the `target` directory:
+- `target/checksum` - The checksum calculator
+- `target/x9` - The GitHub activity viewer
+
+You can also build them individually using the GraalVM native-image tool directly:
+
+```bash
+# Build the project with the fat JAR
+mvn clean package
+
+# The fat JAR will be created at:
+# target/picocli-poc-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+# Build native images separately
+native-image --no-fallback \
+  -cp target/picocli-poc-1.0-SNAPSHOT-jar-with-dependencies.jar \
+  -H:ReflectionConfigurationFiles=src/main/resources/META-INF/native-image/picocli-reflect-config.json \
+  --report-unsupported-elements-at-runtime \
+  --allow-incomplete-classpath \
+  -H:+ReportExceptionStackTraces \
+  -H:Name=checksum \
+  ChecksumKt
+
+native-image --no-fallback \
+  -cp target/picocli-poc-1.0-SNAPSHOT-jar-with-dependencies.jar \
+  -H:ReflectionConfigurationFiles=src/main/resources/META-INF/native-image/picocli-reflect-config.json \
+  --report-unsupported-elements-at-runtime \
+  --allow-incomplete-classpath \
+  -H:+ReportExceptionStackTraces \
+  -H:Name=x9 \
+  X9CliKt
+```
+
+## Running Native Executables
+
+Once built, you can run the native executables directly:
+
+```bash
+# Run the checksum calculator
+./checksum --algorithm SHA-1 hello.txt
+
+# Run the GitHub activity viewer
+./x9 octocat
+```
+
+These native executables start instantly and have no dependency on the JVM.
+
+Native executables are much faster to start up and require no JVM to run.
+
+## Native build
+![img.png](img.png)
+
 ## Running the Application
 
 ### Using Maven
@@ -106,6 +195,10 @@ alias checksum='java -classpath /path/to/project/target/classes:/path/to/require
 
 # For the x9 command
 alias x9='java -classpath /path/to/project/target/classes:/path/to/required/jars X9CliKt'
+
+# Native Image (after building)
+alias checksum-native='./target/checksum'
+alias x9-native='./target/x9cli'
 ```
 
 Then reload your configuration:

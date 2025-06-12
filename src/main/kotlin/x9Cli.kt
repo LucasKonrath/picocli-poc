@@ -41,4 +41,16 @@ class x9Cli : Callable<Int> {
     }
 }
 
-fun main(args: Array<String>) : Unit = exitProcess(CommandLine(x9Cli()).execute(*args))
+fun main(args: Array<String>) : Unit {
+    // This code enables picocli to work with GraalVM native image
+    val cmd = CommandLine(x9Cli())
+
+    // Register for reflection to make native-image aware of these classes
+    cmd.commandSpec.mixins()
+    cmd.commandSpec.optionsMap()
+    cmd.commandSpec.positionalParameters()
+
+    val exitCode = cmd.setCaseInsensitiveEnumValuesAllowed(true)
+        .execute(*args)
+    exitProcess(exitCode)
+}
